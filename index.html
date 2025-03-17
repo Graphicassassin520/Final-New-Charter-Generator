@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Charter Certificate Creator</title>
+    <!-- Google Fonts for Orbitron and Great Vibes -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles for luxurious feel */
+        body {
+            background-color: #1e3a8a; /* Dark blue */
+            font-family: 'Orbitron', sans-serif;
+        }
+        h1 {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        #certificate-container {
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+        /* Print styles for landscape certificate */
+        @media print {
+            @page {
+                size: landscape;
+            }
+            body * {
+                visibility: hidden;
+            }
+            #certificate-img, #certificate-img * {
+                visibility: visible;
+            }
+            #certificate-img {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: auto;
+            }
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen flex flex-col items-center justify-center p-6">
+    <!-- Header -->
+    <header class="mb-10">
+        <h1 class="text-4xl md:text-5xl font-bold tracking-wide">Charter Certificate Creator</h1>
+    </header>
+
+    <!-- Main content -->
+    <main class="w-full max-w-lg">
+        <form id="name-form" class="bg-blue-800 p-8 rounded-xl shadow-xl">
+            <label for="name" class="block text-lg font-semibold mb-3">Enter Your Name:</label>
+            <input 
+                type="text" 
+                id="name" 
+                name="name" 
+                required 
+                class="w-full p-3 rounded-lg bg-white text-blue-900 focus:outline-none focus:ring-2 focus:ring-red-600 transition duration-200"
+                placeholder="e.g., John Stuart"
+            >
+            <button 
+                type="submit" 
+                class="mt-6 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300"
+            >
+                Generate Certificate
+            </button>
+        </form>
+    </main>
+
+    <!-- Certificate display area -->
+    <div id="certificate-container" class="mt-10 hidden max-w-4xl mx-auto border-4 border-white rounded-xl p-6 bg-blue-800">
+        <img id="certificate-img" alt="Generated Certificate" class="max-w-full h-auto rounded-lg">
+        <button 
+            id="print-btn" 
+            class="mt-6 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300"
+        >
+            Print Certificate
+        </button>
+        <p class="text-sm text-gray-200 mt-4">For best results, set your printer to landscape orientation and disable headers/footers in the print settings.</p>
+    </div>
+
+    <!-- Hidden canvas for certificate generation -->
+    <canvas id="canvas" style="display: none;"></canvas>
+
+    <!-- JavaScript logic -->
+    <script>
+        const form = document.getElementById('name-form');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const imgElement = document.getElementById('certificate-img');
+        const printBtn = document.getElementById('print-btn');
+        const certificateContainer = document.getElementById('certificate-container');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value.trim();
+            if (!name) return;
+
+            const img = new Image();
+            img.onload = function() {
+                // Set canvas dimensions to match the image
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                // Draw the template image
+                ctx.drawImage(img, 0, 0);
+
+                // Set font to 30px with Great Vibes for the name
+                ctx.font = '30px "Great Vibes"';
+                ctx.fillStyle = 'black';
+                ctx.textAlign = 'center';
+
+                // Coordinates for name placement (adjust if needed based on your template)
+                const x = 1814; // Centered horizontally
+                const y = 979;  // Adjusted vertically to fit
+                ctx.fillText(name, x, y);
+
+                // Convert canvas to image and display
+                const dataUrl = canvas.toDataURL('image/png');
+                imgElement.src = dataUrl;
+                certificateContainer.classList.remove('hidden');
+            };
+            img.src = 'certificate_template.png'; // Replace with your certificate template path
+        });
+
+        printBtn.addEventListener('click', function() {
+            window.print();
+        });
+    </script>
+</body>
+</html>
